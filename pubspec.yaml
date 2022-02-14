@@ -11,6 +11,14 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_svg: ^1.0.3
+  fluttertoast: ^8.0.8
+  progress_dialog_null_safe: ^1.0.6
+  http: ^0.13.4
+  intl: ^0.17.0
+
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
