@@ -1,21 +1,21 @@
 part of authentication_package;
 
-class RegisterScreen extends StatefulWidget {
+class PMAPRegister extends StatefulWidget {
   final String? logoUrl;
-  final onRegister;
+  final Function(String?) onRegister;
   final onLoginLink;
 
-  const RegisterScreen({Key? key,
+  const PMAPRegister({Key? key,
     required this.logoUrl,
     required this.onLoginLink,
     required this.onRegister,
   }) : super(key: key);
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  _PMAPRegisterState createState() => _PMAPRegisterState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _PMAPRegisterState extends State<PMAPRegister> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // late ProgressDialog pr;
   TextEditingController fullNameController = TextEditingController();
@@ -24,6 +24,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController mobileController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool termsConditions = false;
+  late ProgressDialog pr;
+
 
   @override
   void initState() {
@@ -32,12 +34,60 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
+    fullNameController.dispose();
+    emailController.dispose();
+    countryCodeController.dispose();
+    mobileController.dispose();
+    passwordController.dispose();
     super.dispose();
+  }
+
+  Future<String?> registerUser()async{
+      FocusScope.of(context).unfocus();
+    if(_formKey.currentState!.validate()) {
+      if (termsConditions) {
+        pr.style(
+          child: const CircularProgressIndicator(),
+          // message: "Logging In",
+        );
+        pr.show();
+        Map<String, dynamic> data = {};
+        List<String> split = fullNameController.text.toString().split(" ");
+        data["first_name"] = split.elementAt(0);
+        data["last_name"] = split.elementAt(1);
+        data["email"] = emailController.text;
+        data["country_code"] =
+            countryCodeController.text;
+        data["mobile_number"] =
+            mobileController.text;
+        data["password"] = passwordController.text;
+        data["password_confirmation"] = passwordController.text;
+        data["intrest"] = "Both";
+
+        String? result = await ApiProvider().register(data);
+        if (result != "None") {
+          if (pr.isShowing()) pr.hide();
+
+          return widget.onRegister(result);
+        } else {
+          if (pr.isShowing()) pr.hide();
+          return widget.onRegister("");
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: "Please accept Terms & Conditions!",
+          backgroundColor: PMAPConstants.baseThemeColor,
+          textColor: Colors.white,
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_LONG,
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // pr = ProgressDialog(context, type: ProgressDialogType.normal, isDismissible: false,);
+    pr = ProgressDialog(context, type: ProgressDialogType.normal, isDismissible: false,);
 
     return Scaffold(
       body: SafeArea(
@@ -54,7 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
                 const Text("Create Your Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold ),),
                 const Text("All fields are mandatory", style: TextStyle(fontSize: 16,),),
-                SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
+                SizedBox(height: (MediaQuery.of(context).size.height / 100) * 3,),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -68,10 +118,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10)
                                 ),
-                                hintText: "First Name",
-                                labelText: "First Name"
+                                hintText: "First and Last Name",
+                                // labelText: "Full Name"
                             ),
-                            // validator: (value) => MyValidator.validateNameField(value),
+                            validator: (value) => MyValidator.validateNameField(value),
                           ),
                           SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
                           TextFormField(
@@ -84,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 hintText: "Email ID",
                                 labelText: "Email ID"
                             ),
-                            // validator: (value) => MyValidator.validateEmail(value),
+                            validator: (value) => MyValidator.validateEmail(value),
                           ),
                           SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
                           Row(
@@ -101,13 +151,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       hintText: "Code",
                                       labelText: "Code"
                                   ),
-                                  // validator: (value){
-                                  //   if(value!.isEmpty)
-                                  //     return "Country code can not be empty";
-                                  //   if(value.length > 6)
-                                  //     return "Country code can not be more than 6 digits";
-                                  //
-                                  // },
+                                  validator: (value){
+                                    if(value!.isEmpty) {
+                                      return "Country code can not be empty";
+                                    }
+                                    if(value.length > 6) {
+                                      return "Country code can not be more than 6 digits";
+                                    }
+
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 15,),
@@ -122,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       hintText: "Mobile number",
                                       labelText: "Mobile number"
                                   ),
-                                  // validator: (value) => MyValidator.validateMobile(value),
+                                  validator: (value) => MyValidator.validateMobile(value),
                                 ),
                               ),
                             ],
@@ -139,28 +191,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 hintText: "Password",
                                 labelText: "Password"
                             ),
-                            // validator: (value) => MyValidator.validatePassword(value),
+                            validator: (value) => MyValidator.validatePassword(value),
                           ),
                           SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
-                          // TextFormField(
-                          //   controller: rePasswordController,
-                          //   obscureText: true,
-                          //   keyboardType: TextInputType.text,
-                          //   decoration: InputDecoration(
-                          //       border: OutlineInputBorder(
-                          //           borderRadius: BorderRadius.circular(10)
-                          //       ),
-                          //       hintText: "Re-enter Password",
-                          //       labelText: "Re-enter Password"
-                          //   ),
-                          //   validator: (value){
-                          //     if(value!.isEmpty)
-                          //       return "Please re-enter your password";
-                          //     if(value.toString() != passwordController.text)
-                          //       return "Passwords do not match";
-                          //   },
-                          // ),
-                          // SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
                           CheckboxListTile(
                               value: termsConditions,
                               controlAffinity: ListTileControlAffinity.leading,
@@ -183,9 +216,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               }),
                           SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
                           MaterialButton(
-                            onPressed: widget.onRegister,
+                            onPressed: registerUser,
                             child: const Text("CREATE ACCOUNT", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
-                            color: Constants.baseThemeColor,
+                            color: PMAPConstants.baseThemeColor,
                             height: 55,
                             elevation: 2,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -208,7 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           TextSpan(
                               text: "SIGN IN",
                               recognizer: TapGestureRecognizer()..onTap = widget.onLoginLink,
-                              style: TextStyle(color: Constants.baseThemeColor, decoration: TextDecoration.underline)
+                              style: TextStyle(color: PMAPConstants.baseThemeColor, decoration: TextDecoration.underline)
                           )
                         ]
                     ),

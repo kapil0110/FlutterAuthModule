@@ -63,12 +63,12 @@ class MyValidator{
 
   static String? validateNameField(String? value) {
     String pattern =
-        r'^[a-zA-Z0-9 ._-]+$';
+        r'^[a-zA-Z ]+$';
     RegExp regex = RegExp(pattern);
     if(value!.isEmpty) {
       return "Name can not be empty";
     } else if (!regex.hasMatch(value)) {
-      return 'Not a valid link address';
+      return 'Only alphabets allowed';
     } else if (value.length > 55) {
       return 'Name length can not exceed 55 characters';
     } else {
@@ -95,14 +95,14 @@ class MyValidator{
     bool isValid = Uri.parse(value!).isAbsolute;
 
     if(value.isEmpty) {
-      return "Name can not be empty";
+      return "link can not be empty";
     }
     if(value.contains(" ")) {
       return "Link can not contain space in address.";
     } else if (!isValid) {
       return 'Not a valid link address';
     } else if (value.length > 55) {
-      return 'Name length can not exceed 55 characters';
+      return 'link length can not exceed 55 characters';
     } else {
       return null;
     }

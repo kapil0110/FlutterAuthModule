@@ -95,7 +95,7 @@ class HelperMethods{
         break;
       case 422:
         Fluttertoast.showToast(
-          msg: "Something went wrong at server",
+          msg: "No account found for this email",
           backgroundColor: Colors.redAccent,
           textColor: Colors.white,
           gravity: ToastGravity.BOTTOM,

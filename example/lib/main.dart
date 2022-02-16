@@ -1,11 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:developer';
 
+import 'package:authentication_package/Utils/PMAPConfigOptions.dart';
 import 'package:authentication_package/authentication_package.dart';
-import 'package:authentication_package/Utils/Constants.dart';
+import 'package:authentication_package/Utils/PMAPConstants.dart';
 import 'package:example/Forgot.dart';
+import 'package:example/HomeScreen.dart';
 import 'package:example/Login.dart';
+import 'package:example/MySharedPreferences.dart';
 import 'package:example/Register.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MyHttpOverrides extends HttpOverrides{
   @override
@@ -45,9 +51,10 @@ class MyApp extends StatelessWidget {
       initialRoute: "/",
       routes: {
         "/" : (context) => const MyHomePage(title: "Authentication Demo"),
-        "/Login" : (context) => const Login(),
-        "/Forgot" : (context) => const Forgot(),
-        "/Register" : (context) => const Register()
+        // "/Login" : (context) => const Login(),
+        // "/Forgot" : (context) => const Forgot(),
+        // "/Register" : (context) => const Register(),
+        "/Home" : (context) => const HomeScreen()
       },
     );
   }
@@ -73,20 +80,83 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  late String apiToken;
+  late Future<bool> _future;
 
   @override
   void initState() {
     super.initState();
-    Constants().initialize("https://cabletradesfinal.pugmarker.org/api/pm_api/", Colors.purple);
-    Future.delayed(const Duration(seconds: 3), () => Navigator.pushReplacementNamed(context, "/Login"));
+    PMAPConstants().initialize("https://cabletradesfinal.pugmarker.org/api/pm_api/", Colors.purple);
+    PMAPConfigOptions().initialize(
+        baseUrl: "https://cabletradesfinal.pugmarker.org/api/pm_api/",
+        themeColor: Colors.purple);
+    _future = getApiToken();
+    // Future.delayed(const Duration(seconds: 3), () => Navigator.pushReplacementNamed(context, "/Login"));
   }
+
+  Future<bool> getApiToken()async{
+    apiToken = await MySharedPreferences().getApiToken();
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SplashScreen(
-        logoWidth: 50,
-        logoHeight: 50,
-        logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
+    return Scaffold(
+      body: FutureBuilder(
+        future: _future,
+        builder: (context, snapShot) {
+          if(snapShot.hasData) {
+            return PMAPSplash(
+              apiToken: apiToken,
+              logoWidth: 50,
+              logoHeight: 50,
+              logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
+              onAuthenticated: (value) {
+                log("onAuthenticated: $value");
+
+                dynamic result = jsonDecode(value!);
+                if(result["message"] == "Authenticated") {
+                  Navigator.pushReplacementNamed(context, "/Home");
+                }
+              },
+              onForgotPassword: (value){
+                log("onForgotPassword: $value");
+
+                if(value!.isNotEmpty) {
+                  if (jsonDecode(value)["resetStatus"] == "Success") {
+                    Fluttertoast.showToast(
+                      msg: jsonDecode(value)["message"],
+                      backgroundColor: Colors.redAccent,
+                      textColor: Colors.white,
+                      gravity: ToastGravity.BOTTOM,
+                      toastLength: Toast.LENGTH_LONG,
+                    );
+                  }
+                }
+              },
+              onLogin: (value){
+                log("onLogin: $value");
+
+                if(value!.isNotEmpty){
+                  dynamic result = jsonDecode(value);
+                  MySharedPreferences().addApiToken(result["access_token"]);
+                  Navigator.pushReplacementNamed(context, "/Home");
+                }
+              },
+              onRegister: (value){
+                log("onRegister: $value");
+                if(value!.isNotEmpty) {
+                  dynamic result = jsonDecode(value);
+                  MySharedPreferences().addApiToken(result["access_token"]);
+                  Navigator.pushReplacementNamed(context, "/Home");
+                }
+              },
+
+            );
+          }else{
+            return const CircularProgressIndicator();
+          }
+        }
       ),
     );
   }

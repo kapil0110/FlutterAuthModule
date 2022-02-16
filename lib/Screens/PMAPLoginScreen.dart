@@ -1,16 +1,13 @@
 part of authentication_package;
 
-class LoginScreen extends StatefulWidget {
+class PMAPLogin extends StatefulWidget {
   final String? logoUrl;
-  final String? apiUrl;
   final onForgotPassword;
   final onRegister;
-  final onLogin;
-  // final Function(bool?) onLogin;
+  final Function(String?) onLogin;
 
-  LoginScreen({Key? key,
+  PMAPLogin({Key? key,
     required this.logoUrl,
-    required this.apiUrl,
     required this.onLogin,
     required this.onForgotPassword,
     required this.onRegister,
@@ -21,10 +18,10 @@ class LoginScreen extends StatefulWidget {
 
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _PMAPLoginState createState() => _PMAPLoginState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _PMAPLoginState extends State<PMAPLogin> {
 
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -48,24 +45,29 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Future<bool> getData()async{
-  //   bool? returnResult = false;
-  //   pr.style(
-  //     child: const CircularProgressIndicator(),
-  //     // message: "Logging In",
-  //   );
-  //   pr.show();
-  //
-  //   String result = await ApiProvider().login(widget.apiUrl, userName, password);
-  //   if(result != "None"){
-  //     setState(() {
-  //       returnResult = true;
-  //     });
-  //   }
-  //   if(pr.isShowing()) pr.hide();
-  //   return widget.onLogin(returnResult!);
-  //
-  // }
+  Future<String?> getData()async{
+    FocusScope.of(context).unfocus();
+    if(_formKey.currentState!.validate()) {
+      pr.style(
+        child: const CircularProgressIndicator(),
+        // message: "Logging In",
+      );
+      pr.show();
+
+      String? result = await ApiProvider().login(userName, password);
+      if (result != "None") {
+        // dynamic json = jsonDecode(result);
+        if (pr.isShowing()) pr.hide();
+
+        return widget.onLogin(result);
+      } else {
+        if (pr.isShowing()) pr.hide();
+
+        return widget.onLogin("");
+      }
+    }
+
+  }
 
 
   @override
@@ -106,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             userName = value;
                           });
                         },
-                        // validator: (value) => MyValidator.validateEmail(value),
+                        validator: (value) => MyValidator.validateEmail(value),
                       ),
                       SizedBox(height: (MediaQuery.of(context).size.height / 100) * 3,),
                       TextFormField(
@@ -125,13 +127,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             password = value;
                           });
                         },
-                        // validator: (value) => MyValidator.validatePassword(value),
+                        validator: (value) => MyValidator.validatePassword(value),
                       ),
                       SizedBox(height: (MediaQuery.of(context).size.height / 100) * 5,),
                       MaterialButton(
-                        onPressed: widget.onLogin,
+                        onPressed: getData,
                         child: const Text("Sign In", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
-                        color: Constants.baseThemeColor,
+                        color: PMAPConstants.baseThemeColor,
                         height: 55,
                         elevation: 2,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -140,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: (MediaQuery.of(context).size.height / 100) * 3,),
                       InkWell(
                           onTap: widget.onForgotPassword,
-                          child: Text("Forgot Password?", style: TextStyle(fontSize: 18, color: Constants.baseThemeColor, decoration: TextDecoration.underline),)),
+                          child: Text("Forgot Password?", style: TextStyle(fontSize: 18, color: PMAPConstants.baseThemeColor, decoration: TextDecoration.underline),)),
                       Expanded(child: Container(),),
                       Container(height: 2, width: MediaQuery.of(context).size.width, color: Colors.grey),
                       Padding(
@@ -153,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 TextSpan(
                                     text: "CREATE ACCOUNT",
                                     recognizer: TapGestureRecognizer()..onTap = widget.onRegister,
-                                    style: TextStyle(color: Constants.baseThemeColor, decoration: TextDecoration.underline)
+                                    style: TextStyle(color: PMAPConstants.baseThemeColor, decoration: TextDecoration.underline)
                                 )
                               ]
                           ),

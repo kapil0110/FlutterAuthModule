@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Constants{
+class PMAPConstants{
   static String? apiBaseUrl;
   static Color? baseThemeColor;
 
