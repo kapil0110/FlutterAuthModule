@@ -2,26 +2,21 @@ part of authentication_package;
 
 
 class PMAPSplash extends StatefulWidget {
-  final MaterialColor? backgroundColor;
-  final String? logoUrl;
-  final String? apiToken;
-  final double? logoHeight;
-  final double? logoWidth;
-  final Function(String?) onAuthenticated;
-  final Function(String?) onForgotPassword;
-  final Function(String?) onLogin;
-  final Function(String?) onRegister;
+  //For Splash Screen
+  final PMAPSplashConfigOptions? splashScreenConfigOptions;
+
+  //For Login Screen
+  final PMAPLoginConfigOptions? loginScreenConfigOptions;
+
+  // //For Login Screen
+  // final PMAPLoginConfigOptions? loginScreenConfigOptions;
+
+
   const PMAPSplash(
       {Key? key,
-        this.backgroundColor,
-        required this.logoUrl,
-        required this.apiToken,
-        required this.logoHeight,
-        required this.logoWidth,
-        required this.onAuthenticated,
-        required this.onForgotPassword,
-        required this.onLogin,
-        required this.onRegister,
+        this.loginScreenConfigOptions,
+        required this.splashScreenConfigOptions,
+
       })
       : super(key: key);
 
@@ -34,10 +29,11 @@ class _PMAPSplashState extends State<PMAPSplash> {
   @override
   void initState() {
     super.initState();
+
+/*-------------Add 2 seconds delay to call Authentication Api -------------*/
     Future.delayed(const Duration(seconds: 2), (){
-
+      //Future method for calling Authentication Api
       authenticateToken();
-
     });
   }
 
@@ -47,21 +43,22 @@ class _PMAPSplashState extends State<PMAPSplash> {
   }
 
   Future<String?> authenticateToken()async{
-    String result = await ApiProvider().authenticate(widget.apiToken);
+    String result = await ApiProvider().authenticate(widget.splashScreenConfigOptions!.apiToken);
     if(result != "None"){
-      return widget.onAuthenticated(result);
+      return widget.splashScreenConfigOptions!.onAuthenticated(result);
     }else{
       Navigator.push(context, MaterialPageRoute(builder: (context) => PMAPLogin(
+          loginScreenConfigOptions: PMAPLoginConfigOptions(),
           logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
-          onLogin: widget.onLogin,
+          onLogin: widget.splashScreenConfigOptions!.onLogin,
           onForgotPassword: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => PMAPForgotPassword(
                   logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
                   onLoginLink: () => Navigator.pop(context),
-                  onForgotPassword: widget.onForgotPassword))),
+                  onForgotPassword: widget.splashScreenConfigOptions!.onForgotPassword))),
           onRegister: () => Navigator.push(context, MaterialPageRoute(
             builder: (context) => PMAPRegister(
-              onRegister: widget.onRegister,
+              onRegister: widget.splashScreenConfigOptions!.onRegister,
               onLoginLink: () => Navigator.pop(context),
               logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
             )
@@ -72,18 +69,44 @@ class _PMAPSplashState extends State<PMAPSplash> {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     return Scaffold(
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            color: widget.backgroundColor ?? Colors.white,
-          ),
-          child: Center(
-            child: SvgPicture.network(
-              widget.logoUrl!,
-              width: widget.logoWidth,
-              height: widget.logoHeight,
+        body: SafeArea(
+          child: Container(
+            height: SizeConfig.screenHeight,
+            width: SizeConfig.screenWidth,
+            decoration: BoxDecoration(
+              color: widget.splashScreenConfigOptions!.backgroundColor,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                widget.splashScreenConfigOptions!.title!.isNotEmpty
+                    ? Text(widget.splashScreenConfigOptions!.title!,
+                          style: TextStyle(
+                          fontSize: widget.splashScreenConfigOptions!.titleFontSize! < 20
+                              || widget.splashScreenConfigOptions!.titleFontSize! > 40
+                              ? 20 : widget.splashScreenConfigOptions!.titleFontSize,
+                          color: widget.splashScreenConfigOptions!.titleFontColor,
+                          fontWeight: widget.splashScreenConfigOptions!.titleFontWeight,
+                          fontStyle: widget.splashScreenConfigOptions!.titleFontStyle,
+                          decoration: widget.splashScreenConfigOptions!.titleUnderline
+                              ? TextDecoration.underline : TextDecoration.none,
+                        )
+                      )
+                    : Container(),
+                widget.splashScreenConfigOptions!.title!.isNotEmpty
+                    ? SizedBox(height: SizeConfig.v10,)
+                    : Container(),
+                SvgPicture.network(
+                  PMAPConstants.logoUrl!,
+                  width: widget.splashScreenConfigOptions!.logoWidth,
+                  height: widget.splashScreenConfigOptions!.logoHeight,
+                ),
+                SizedBox(height: SizeConfig.h20,),
+                CircularProgressIndicator(color: PMAPConstants.baseThemeColor,)
+              ],
             ),
           ),
         ));

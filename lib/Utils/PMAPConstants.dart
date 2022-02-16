@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 class PMAPConstants{
   static String? apiBaseUrl;
+  static String? logoUrl;
   static Color? baseThemeColor;
 
-  initialize(String? baseUrl, Color themeColor){
+  initialize({required String? baseUrl, required Color? themeColor, required String? logo}){
     apiBaseUrl = baseUrl;
     baseThemeColor = themeColor;
+    logoUrl = logo;
   }
 
   //

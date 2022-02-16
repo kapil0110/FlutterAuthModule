@@ -1,17 +1,16 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:developer';
+import 'dart:io';
 
-import 'package:authentication_package/Utils/PMAPConfigOptions.dart';
-import 'package:authentication_package/authentication_package.dart';
 import 'package:authentication_package/Utils/PMAPConstants.dart';
-import 'package:example/Forgot.dart';
+import 'package:authentication_package/authentication_package.dart';
 import 'package:example/HomeScreen.dart';
-import 'package:example/Login.dart';
 import 'package:example/MySharedPreferences.dart';
-import 'package:example/Register.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+//Overrides http Client setting to accept faulty/corrupt SSL Certificates.
+//Only for development purpose. Solve Certificate issues before production release
 
 class MyHttpOverrides extends HttpOverrides{
   @override
@@ -23,6 +22,7 @@ class MyHttpOverrides extends HttpOverrides{
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  //Sets setting globally for all HttpClients
   HttpOverrides.global = MyHttpOverrides();
 
   runApp(const MyApp());
@@ -35,28 +35,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Auth Demo',
+      title: 'Auth Plugin Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       initialRoute: "/",
       routes: {
         "/" : (context) => const MyHomePage(title: "Authentication Demo"),
-        // "/Login" : (context) => const Login(),
-        // "/Forgot" : (context) => const Forgot(),
-        // "/Register" : (context) => const Register(),
         "/Home" : (context) => const HomeScreen()
-      },
-    );
+      },    );
   }
 }
 
@@ -86,12 +73,25 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    PMAPConstants().initialize("https://cabletradesfinal.pugmarker.org/api/pm_api/", Colors.purple);
-    PMAPConfigOptions().initialize(
+
+    //Initialize Configuration properties that will be used inside plugin
+    //to make api call, set color theme
+    PMAPConstants().initialize(
+        //Provides baseUrl for all api calls
         baseUrl: "https://cabletradesfinal.pugmarker.org/api/pm_api/",
-        themeColor: Colors.purple);
+        //Provides Background color for Buttons and Color of clickable links
+        // within Plugin classes
+        themeColor: Colors.purple,
+        //Provides url to logo displayed in Splash Screen
+        logo: "https://raw.githubusercontent.com/nimish-pugmarker/"
+            "File-Hosting-For-Demo/9269c45b6323c6738a4bd12df4fcf3667e6ff528/"
+            "Dummy-logo%20(1).svg",
+    );
+
+    //Future call returns true after apiToken is initialized
+    // Returns apiToken string if present in SharedPreferences,
+    // else returns empty string.
     _future = getApiToken();
-    // Future.delayed(const Duration(seconds: 3), () => Navigator.pushReplacementNamed(context, "/Login"));
   }
 
   Future<bool> getApiToken()async{
@@ -102,61 +102,102 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
+      // FutureBuilder to ensure that apiToken is initialized properly
       body: FutureBuilder(
-        future: _future,
-        builder: (context, snapShot) {
-          if(snapShot.hasData) {
-            return PMAPSplash(
-              apiToken: apiToken,
-              logoWidth: 50,
-              logoHeight: 50,
-              logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
-              onAuthenticated: (value) {
-                log("onAuthenticated: $value");
+          future: _future,
+          builder: (context, snapShot) {
+            if(snapShot.hasData) {
 
-                dynamic result = jsonDecode(value!);
-                if(result["message"] == "Authenticated") {
-                  Navigator.pushReplacementNamed(context, "/Home");
-                }
-              },
-              onForgotPassword: (value){
-                log("onForgotPassword: $value");
+              return PMAPSplash(
+                //Login Screen Configuration options
+                splashScreenConfigOptions: PMAPSplashConfigOptions(
+/*---------------------- Required mandatory parameters -----------------------*/
 
-                if(value!.isNotEmpty) {
-                  if (jsonDecode(value)["resetStatus"] == "Success") {
-                    Fluttertoast.showToast(
-                      msg: jsonDecode(value)["message"],
-                      backgroundColor: Colors.redAccent,
-                      textColor: Colors.white,
-                      gravity: ToastGravity.BOTTOM,
-                      toastLength: Toast.LENGTH_LONG,
-                    );
+                //Used to check user session authenticity
+                //If authenticated, response is returned in onAuthenticated callback below
+                apiToken: apiToken,
+                //Provides width to logo displayed in Splash Screen
+                logoWidth: 150,
+                //Provides height to logo displayed in Splash Screen
+                logoHeight: 150,
+                //Callback returning result from Authentication api
+                onAuthenticated: (value) {
+                  log("onAuthenticated: $value");
+
+                  dynamic result = jsonDecode(value!);
+                  if(result["message"] == "Authenticated") {
+                    Navigator.pushReplacementNamed(context, "/Home");
                   }
-                }
-              },
-              onLogin: (value){
-                log("onLogin: $value");
+                },
+                //Callback returning result from Registration api
+                //Returns jsonString on Success and empty string on Failure
+                onRegister: (value){
+                  log("onRegister: $value");
+                  if(value!.isNotEmpty) {
+                    dynamic result = jsonDecode(value);
+                    MySharedPreferences().addApiToken(result["access_token"]);
+                    Navigator.pushReplacementNamed(context, "/Home");
+                  }
+                },
+                  //Callback returning result from Login api
+                  //Returns jsonString on Success and empty string on Failure
+                  onLogin: (value){
+                    log("onLogin: $value");
 
-                if(value!.isNotEmpty){
-                  dynamic result = jsonDecode(value);
-                  MySharedPreferences().addApiToken(result["access_token"]);
-                  Navigator.pushReplacementNamed(context, "/Home");
-                }
-              },
-              onRegister: (value){
-                log("onRegister: $value");
-                if(value!.isNotEmpty) {
-                  dynamic result = jsonDecode(value);
-                  MySharedPreferences().addApiToken(result["access_token"]);
-                  Navigator.pushReplacementNamed(context, "/Home");
-                }
-              },
+                    if(value!.isNotEmpty){
+                      dynamic result = jsonDecode(value);
+                      MySharedPreferences().addApiToken(result["access_token"]);
+                      Navigator.pushReplacementNamed(context, "/Home");
+                    }
+                  },
+                  //Callback returning result from Reset Password api
+                  //Returns jsonString on Success and empty string on Failure
+                  onForgotPassword: (value){
+                    log("onForgotPassword: $value");
 
-            );
-          }else{
-            return const CircularProgressIndicator();
+                    if(value!.isNotEmpty) {
+                      if (jsonDecode(value)["resetStatus"] == "Success") {
+                        Fluttertoast.showToast(
+                          msg: jsonDecode(value)["message"],
+                          backgroundColor: Colors.redAccent,
+                          textColor: Colors.white,
+                          gravity: ToastGravity.BOTTOM,
+                          toastLength: Toast.LENGTH_LONG,
+                        );
+                      }
+                    }
+                  },
+
+/*--------------------------- Optional parameters ----------------------------*/
+
+                  //App title default none
+                  title: "My Auth Plugin",
+
+                  //App title font size default 20, max 40
+                  // titleFontSize: 20,
+
+                  // App title font color default black,
+                  // titleFontColor: Colors.black,
+
+                  // App title font weight default normal,
+                  // titleFontWeight: FontWeight.normal,
+
+                  // App title font style default normal,
+                  // titleFontStyle: FontStyle.normal,
+
+                  // App title underline default false,
+                  // titleUnderline: false,
+
+                ),
+
+                //Login Screen Configuration options
+                loginScreenConfigOptions: PMAPLoginConfigOptions(),
+              );
+            }else{
+              return const CircularProgressIndicator();
+            }
           }
-        }
       ),
     );
   }
