@@ -1,14 +1,14 @@
 part of authentication_package;
 
 class PMAPRegister extends StatefulWidget {
-  final String? logoUrl;
   final Function(String?) onRegister;
   final onLoginLink;
+  final PMAPRegisterConfigOptions? registerScreenConfigOptions;
 
   const PMAPRegister({Key? key,
-    required this.logoUrl,
     required this.onLoginLink,
     required this.onRegister,
+    required this.registerScreenConfigOptions
   }) : super(key: key);
 
   @override
@@ -19,11 +19,14 @@ class _PMAPRegisterState extends State<PMAPRegister> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // late ProgressDialog pr;
   TextEditingController fullNameController = TextEditingController();
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController countryCodeController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool termsConditions = false;
+  bool isVisible = false;
   late ProgressDialog pr;
 
 
@@ -35,6 +38,8 @@ class _PMAPRegisterState extends State<PMAPRegister> {
   @override
   void dispose() {
     fullNameController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
     emailController.dispose();
     countryCodeController.dispose();
     mobileController.dispose();
@@ -53,8 +58,8 @@ class _PMAPRegisterState extends State<PMAPRegister> {
         pr.show();
         Map<String, dynamic> data = {};
         List<String> split = fullNameController.text.toString().split(" ");
-        data["first_name"] = split.elementAt(0);
-        data["last_name"] = split.elementAt(1);
+        data["first_name"] = firstNameController.text;
+        data["last_name"] = lastNameController.text;
         data["email"] = emailController.text;
         data["country_code"] =
             countryCodeController.text;
@@ -67,7 +72,6 @@ class _PMAPRegisterState extends State<PMAPRegister> {
         String? result = await ApiProvider().register(data);
         if (result != "None") {
           if (pr.isShowing()) pr.hide();
-
           return widget.onRegister(result);
         } else {
           if (pr.isShowing()) pr.hide();
@@ -94,35 +98,96 @@ class _PMAPRegisterState extends State<PMAPRegister> {
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            color: widget.registerScreenConfigOptions!.backgroundColor,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
-                SvgPicture.network(widget.logoUrl!, height: (MediaQuery.of(context).size.height / 100) * 5,),
+                SvgPicture.network(PMAPConstants.logoUrl!,
+                  height: (MediaQuery.of(context).size.height / 100) * 10,),
                 SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
-                const Text("Create Your Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold ),),
+                Text(widget.registerScreenConfigOptions!.title!,
+                    style: TextStyle(
+                      fontSize: widget.registerScreenConfigOptions!.titleFontSize! < 20
+                          || widget.registerScreenConfigOptions!.titleFontSize! > 40
+                          ? 20 : widget.registerScreenConfigOptions!.titleFontSize,
+                      color: widget.registerScreenConfigOptions!.titleFontColor,
+                      fontWeight: widget.registerScreenConfigOptions!.titleFontWeight,
+                      fontStyle: widget.registerScreenConfigOptions!.titleFontStyle,
+                      decoration: widget.registerScreenConfigOptions!.titleUnderline
+                          ? TextDecoration.underline : TextDecoration.none,
+                    )                ),
+                SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
                 const Text("All fields are mandatory", style: TextStyle(fontSize: 16,),),
-                SizedBox(height: (MediaQuery.of(context).size.height / 100) * 3,),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Column(
                         children: [
-                          TextFormField(
-                            controller: fullNameController,
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)
+                          SizedBox(height: SizeConfig.v3,),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: firstNameController,
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      hintText: "First Name",
+                                      labelText: "First Name",
+                                      labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                                      )
+                                  ),
+                                  validator: (value) => MyValidator.validateNameField(value),
                                 ),
-                                hintText: "First and Last Name",
-                                // labelText: "Full Name"
-                            ),
-                            validator: (value) => MyValidator.validateNameField(value),
+                              ),
+                              const SizedBox(width: 15,),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: lastNameController,
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      hintText: "Last Name",
+                                      labelText: "Last Name",
+                                      labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                                      )
+                                  ),
+                                  validator: (value) => MyValidator.validateNameField(value),
+                                ),
+                              ),
+                            ],
                           ),
+
+                          // TextFormField(
+                          //   controller: fullNameController,
+                          //   keyboardType: TextInputType.text,
+                          //   decoration: InputDecoration(
+                          //       border: OutlineInputBorder(
+                          //           borderRadius: BorderRadius.circular(10)
+                          //       ),
+                          //       hintText: "First and Last Name",
+                          //       labelText: "First and Last Name",
+                          //       labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                          //       focusedBorder: OutlineInputBorder(
+                          //           borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                          //       )
+                          //   ),
+                          //   validator: (value) => MyValidator.validateNameField(value),
+                          // ),
                           SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
                           TextFormField(
                             controller: emailController,
@@ -132,7 +197,11 @@ class _PMAPRegisterState extends State<PMAPRegister> {
                                     borderRadius: BorderRadius.circular(10)
                                 ),
                                 hintText: "Email ID",
-                                labelText: "Email ID"
+                                labelText: "Email ID",
+                                labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                                )
                             ),
                             validator: (value) => MyValidator.validateEmail(value),
                           ),
@@ -149,7 +218,11 @@ class _PMAPRegisterState extends State<PMAPRegister> {
                                           borderRadius: BorderRadius.circular(10)
                                       ),
                                       hintText: "Code",
-                                      labelText: "Code"
+                                      labelText: "Code",
+                                      labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                                      )
                                   ),
                                   validator: (value){
                                     if(value!.isEmpty) {
@@ -172,7 +245,11 @@ class _PMAPRegisterState extends State<PMAPRegister> {
                                           borderRadius: BorderRadius.circular(10)
                                       ),
                                       hintText: "Mobile number",
-                                      labelText: "Mobile number"
+                                      labelText: "Mobile number",
+                                      labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                                      )
                                   ),
                                   validator: (value) => MyValidator.validateMobile(value),
                                 ),
@@ -182,14 +259,28 @@ class _PMAPRegisterState extends State<PMAPRegister> {
                           SizedBox(height: (MediaQuery.of(context).size.height / 100) * 2,),
                           TextFormField(
                             controller: passwordController,
-                            obscureText: true,
+                            obscureText: !isVisible,
                             keyboardType: TextInputType.text,
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10)
                                 ),
                                 hintText: "Password",
-                                labelText: "Password"
+                                labelText: "Password",
+                                labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                                ),
+                              suffixIcon: GestureDetector(
+                                onTap: (){
+                                  setState(() {
+                                    isVisible = !isVisible;
+                                  });
+                                },
+                                child: isVisible
+                                    ? Icon(Icons.visibility, color: PMAPConstants.baseThemeColor,)
+                                    : Icon(Icons.visibility_off, color: PMAPConstants.baseThemeColor,),
+                              )
                             ),
                             validator: (value) => MyValidator.validatePassword(value),
                           ),
@@ -197,14 +288,16 @@ class _PMAPRegisterState extends State<PMAPRegister> {
                           CheckboxListTile(
                               value: termsConditions,
                               controlAffinity: ListTileControlAffinity.leading,
+                              checkColor: Colors.white,
+                              activeColor: PMAPConstants.baseThemeColor,
                               title: RichText(
-                                text: const TextSpan(
+                                text: TextSpan(
                                     text: "I agree to all the ",
-                                    style: TextStyle(color: Colors.black,),
+                                    style: const TextStyle(color: Colors.black,),
                                     children: [
                                       TextSpan(
                                           text: "Terms & Privacy policy",
-                                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)
+                                          style: TextStyle(color: PMAPConstants.baseThemeColor, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)
                                       )
                                     ]
                                 ),

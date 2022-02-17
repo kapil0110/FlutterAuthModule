@@ -5,11 +5,13 @@ class PMAPForgotPassword extends StatefulWidget {
   final String? logoUrl;
   final onLoginLink;
   final Function(String?) onForgotPassword;
+  final PMAPForgotPasswordConfigOptions? forgotPasswordConfigOptions;
 
   const PMAPForgotPassword({Key? key,
     required this.logoUrl,
     required this.onLoginLink,
     required this.onForgotPassword,
+    required this.forgotPasswordConfigOptions,
   }) : super(key: key);
 
   @override
@@ -66,6 +68,9 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
           child: Container(
             height: MediaQuery.of(context).size.height,
             width: double.infinity,
+            decoration: BoxDecoration(
+              color: widget.forgotPasswordConfigOptions!.backgroundColor,
+            ),
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(25),
@@ -77,8 +82,26 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
                     children: [
                       SizedBox(height: (MediaQuery.of(context).size.height / 100) * 15,),
                       SvgPicture.network(widget.logoUrl!, height: 55, width: 55,),
-                      SizedBox(height: (MediaQuery.of(context).size.height / 100) * 5,),
-                      const Text("Reset Password", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold ),),
+                      SizedBox(height: SizeConfig.v2),
+                      Text(widget.forgotPasswordConfigOptions!.title!,
+                        style: TextStyle(
+                            fontSize: widget.forgotPasswordConfigOptions!.titleFontSize! < 24
+                                || widget.forgotPasswordConfigOptions!.titleFontSize! > 54
+                                ? 24 : widget.forgotPasswordConfigOptions!.titleFontSize,
+                          fontWeight: widget.forgotPasswordConfigOptions!.titleFontWeight,
+                          color: widget.forgotPasswordConfigOptions!.titleFontColor,
+                          fontStyle: widget.forgotPasswordConfigOptions!.titleFontStyle,
+                          decoration: widget.forgotPasswordConfigOptions!.titleUnderline
+                              ? TextDecoration.underline : TextDecoration.none,
+                        ),),
+                      SizedBox(height: SizeConfig.v2,),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: SizeConfig.h4),
+                        child: Text(widget.forgotPasswordConfigOptions!.subTitle!,
+                          style: const TextStyle(fontSize: 18,),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                       SizedBox(height: (MediaQuery.of(context).size.height / 100) * 5,),
                       TextFormField(
                         controller: emailController,
@@ -88,7 +111,11 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
                                 borderRadius: BorderRadius.circular(10)
                             ),
                             hintText: "Email Id",
-                            labelText: "Email Id"
+                            labelText: "Email Id",
+                            labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                            )
                         ),
                         onChanged: (value){
                           email = value;

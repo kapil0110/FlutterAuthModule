@@ -1,14 +1,12 @@
 part of authentication_package;
 
 class PMAPLogin extends StatefulWidget {
-  final String? logoUrl;
   final onForgotPassword;
   final onRegister;
   final Function(String?) onLogin;
   final PMAPLoginConfigOptions? loginScreenConfigOptions;
 
   PMAPLogin({Key? key,
-    required this.logoUrl,
     required this.onLogin,
     required this.onForgotPassword,
     required this.onRegister,
@@ -134,7 +132,11 @@ class _PMAPLoginState extends State<PMAPLogin> {
                               borderRadius: BorderRadius.circular(10)
                           ),
                           hintText: "Password",
-                          labelText: "Password"
+                          labelText: "Password",
+                          labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                          )
                       ),
                       onChanged: (value){
                         setState(() {
@@ -155,7 +157,11 @@ class _PMAPLoginState extends State<PMAPLogin> {
                     ),
                     SizedBox(height: (MediaQuery.of(context).size.height / 100) * 3,),
                     InkWell(
-                        onTap: widget.onForgotPassword,
+                        onTap: (){
+                          userNameController.clear();
+                          passwordController.clear();
+                          widget.onForgotPassword();
+                        },
                         child: Text("Forgot Password?", style: TextStyle(fontSize: 18, color: PMAPConstants.baseThemeColor, decoration: TextDecoration.underline),)),
                     Expanded(child: Container(),),
                     Container(height: 2, width: MediaQuery.of(context).size.width, color: Colors.grey),
@@ -168,7 +174,11 @@ class _PMAPLoginState extends State<PMAPLogin> {
                             children: [
                               TextSpan(
                                   text: "CREATE ACCOUNT",
-                                  recognizer: TapGestureRecognizer()..onTap = widget.onRegister,
+                                  recognizer: TapGestureRecognizer()..onTap = (){
+                                    userNameController.clear();
+                                    passwordController.clear();
+                                    widget.onRegister();
+                                  },
                                   style: TextStyle(color: PMAPConstants.baseThemeColor, decoration: TextDecoration.underline)
                               )
                             ]

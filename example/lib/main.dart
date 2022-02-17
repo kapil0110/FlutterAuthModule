@@ -110,8 +110,6 @@ class _MyHomePageState extends State<MyHomePage> {
             if(snapShot.hasData) {
 
               return PMAPSplash(
-                //Login Screen Configuration options
-                splashScreenConfigOptions: PMAPSplashConfigOptions(
 /*---------------------- Required mandatory parameters -----------------------*/
 
                 //Used to check user session authenticity
@@ -121,6 +119,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 logoWidth: 150,
                 //Provides height to logo displayed in Splash Screen
                 logoHeight: 150,
+                //Callback returning result from Registration api
+                //Returns jsonString on Success and empty string on Failure
+                onRegister: (value){
+                  log("onRegister: $value");
+                  if(value!.isNotEmpty) {
+                    dynamic result = jsonDecode(value);
+                    MySharedPreferences().addApiToken(result["access_token"]);
+                    Navigator.pushNamedAndRemoveUntil(context, "/Home", (route) => false);
+                    // Navigator.pushReplacementNamed(context, "/Home");
+                  }
+                },
                 //Callback returning result from Authentication api
                 onAuthenticated: (value) {
                   log("onAuthenticated: $value");
@@ -130,69 +139,136 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.pushReplacementNamed(context, "/Home");
                   }
                 },
-                //Callback returning result from Registration api
+                //Callback returning result from Login api
                 //Returns jsonString on Success and empty string on Failure
-                onRegister: (value){
-                  log("onRegister: $value");
-                  if(value!.isNotEmpty) {
+                onLogin: (value){
+                  log("onLogin: $value");
+
+                  if(value!.isNotEmpty){
                     dynamic result = jsonDecode(value);
                     MySharedPreferences().addApiToken(result["access_token"]);
                     Navigator.pushReplacementNamed(context, "/Home");
                   }
                 },
-                  //Callback returning result from Login api
-                  //Returns jsonString on Success and empty string on Failure
-                  onLogin: (value){
-                    log("onLogin: $value");
+                //Callback returning result from Reset Password api
+                //Returns jsonString on Success and empty string on Failure
+                onForgotPassword: (value){
+                  log("onForgotPassword: $value");
 
-                    if(value!.isNotEmpty){
-                      dynamic result = jsonDecode(value);
-                      MySharedPreferences().addApiToken(result["access_token"]);
-                      Navigator.pushReplacementNamed(context, "/Home");
+                  if(value!.isNotEmpty) {
+                    if (jsonDecode(value)["resetStatus"] == "Success") {
+                      Fluttertoast.showToast(
+                        msg: jsonDecode(value)["message"],
+                        backgroundColor: Colors.redAccent,
+                        textColor: Colors.white,
+                        gravity: ToastGravity.BOTTOM,
+                        toastLength: Toast.LENGTH_LONG,
+                      );
                     }
-                  },
-                  //Callback returning result from Reset Password api
-                  //Returns jsonString on Success and empty string on Failure
-                  onForgotPassword: (value){
-                    log("onForgotPassword: $value");
+                  }
+                },
+/*---------------------- Splash Screen Configuration Options -----------------------*/
 
-                    if(value!.isNotEmpty) {
-                      if (jsonDecode(value)["resetStatus"] == "Success") {
-                        Fluttertoast.showToast(
-                          msg: jsonDecode(value)["message"],
-                          backgroundColor: Colors.redAccent,
-                          textColor: Colors.white,
-                          gravity: ToastGravity.BOTTOM,
-                          toastLength: Toast.LENGTH_LONG,
-                        );
-                      }
-                    }
-                  },
-
+                splashScreenConfigOptions: PMAPSplashConfigOptions(
 /*--------------------------- Optional parameters ----------------------------*/
 
                   //App title default none
                   title: "My Auth Plugin",
 
                   //App title font size default 20, max 40
-                  // titleFontSize: 20,
+                  titleFontSize: 20,
 
                   // App title font color default black,
-                  // titleFontColor: Colors.black,
+                  titleFontColor: Colors.black,
 
                   // App title font weight default normal,
-                  // titleFontWeight: FontWeight.normal,
+                  titleFontWeight: FontWeight.normal,
 
                   // App title font style default normal,
-                  // titleFontStyle: FontStyle.normal,
+                  titleFontStyle: FontStyle.normal,
 
                   // App title underline default false,
-                  // titleUnderline: false,
+                  titleUnderline: false,
 
                 ),
 
-                //Login Screen Configuration options
-                loginScreenConfigOptions: PMAPLoginConfigOptions(),
+/*---------------------- Login Screen Configuration Options -----------------------*/
+
+                loginScreenConfigOptions: PMAPLoginConfigOptions(
+/*--------------------------- Optional parameters ----------------------------*/
+                  //Provides width to logo displayed in Splash Screen
+                  logoWidth: 150,
+
+                  //Provides height to logo displayed in Splash Screen
+                  logoHeight: 150,
+
+                  //App title default none
+                  title: "My Auth Plugin",
+
+                  //App title font size default 20, max 40
+                  titleFontSize: 20,
+
+                  // App title font color default black,
+                  titleFontColor: Colors.black,
+
+                  // App title font weight default normal,
+                  titleFontWeight: FontWeight.normal,
+
+                  // App title font style default normal,
+                  titleFontStyle: FontStyle.normal,
+
+                  // App title underline default false,
+                  titleUnderline: false,
+                ),
+
+/*---------------------- Register Screen Configuration Options -----------------------*/
+                //
+                registerScreenConfigOptions: PMAPRegisterConfigOptions(
+/*--------------------------- Optional parameters ----------------------------*/
+
+                  //App title default none
+                  title: "My Auth Plugin",
+
+                  //App title font size default 20, max 40
+                  titleFontSize: 20,
+
+                  // App title font color default black,
+                  titleFontColor: Colors.black,
+
+                  // App title font weight default normal,
+                  titleFontWeight: FontWeight.normal,
+
+                  // App title font style default normal,
+                  titleFontStyle: FontStyle.normal,
+
+                  // App title underline default false,
+                  titleUnderline: false,
+                ),
+
+/*---------------------- Forgot Password Screen Configuration Options -----------------------*/
+
+                forgotPasswordScreenConfigOptions: PMAPForgotPasswordConfigOptions(
+/*--------------------------- Optional parameters ----------------------------*/
+
+                  //App title default none
+                  title: "My Auth Plugin",
+
+                  //App title font size default 20, max 40
+                  titleFontSize: 20,
+
+                  // App title font color default black,
+                  titleFontColor: Colors.black,
+
+                  // App title font weight default normal,
+                  titleFontWeight: FontWeight.normal,
+
+                  // App title font style default normal,
+                  titleFontStyle: FontStyle.normal,
+
+                  // App title underline default false,
+                  titleUnderline: false,
+                ),
+
               );
             }else{
               return const CircularProgressIndicator();

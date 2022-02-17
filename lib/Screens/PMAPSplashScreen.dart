@@ -2,20 +2,42 @@ part of authentication_package;
 
 
 class PMAPSplash extends StatefulWidget {
+  //Mandatory fields
+
+  final String? apiToken;
+  final double? logoHeight;
+  final double? logoWidth;
+
+  final Function(String?) onAuthenticated;
+  final Function(String?) onLogin;
+  final Function(String?) onForgotPassword;
+  final Function(String?) onRegister;
   //For Splash Screen
   final PMAPSplashConfigOptions? splashScreenConfigOptions;
 
   //For Login Screen
   final PMAPLoginConfigOptions? loginScreenConfigOptions;
 
-  // //For Login Screen
-  // final PMAPLoginConfigOptions? loginScreenConfigOptions;
+  // //For Register Screen
+  final PMAPRegisterConfigOptions? registerScreenConfigOptions;
+
+  // For Forgot Password Screen
+  final PMAPForgotPasswordConfigOptions? forgotPasswordScreenConfigOptions;
 
 
   const PMAPSplash(
       {Key? key,
         this.loginScreenConfigOptions,
-        required this.splashScreenConfigOptions,
+        this.splashScreenConfigOptions,
+        this.registerScreenConfigOptions,
+        this.forgotPasswordScreenConfigOptions,
+        required this.onAuthenticated,
+        required this.onLogin,
+        required this.onRegister,
+        required this.onForgotPassword,
+        required this.apiToken,
+        required this.logoHeight,
+        required this.logoWidth,
 
       })
       : super(key: key);
@@ -43,24 +65,25 @@ class _PMAPSplashState extends State<PMAPSplash> {
   }
 
   Future<String?> authenticateToken()async{
-    String result = await ApiProvider().authenticate(widget.splashScreenConfigOptions!.apiToken);
+    String result = await ApiProvider().authenticate(widget.apiToken);
     if(result != "None"){
-      return widget.splashScreenConfigOptions!.onAuthenticated(result);
+      return widget.onAuthenticated(result);
     }else{
       Navigator.push(context, MaterialPageRoute(builder: (context) => PMAPLogin(
           loginScreenConfigOptions: PMAPLoginConfigOptions(),
-          logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
-          onLogin: widget.splashScreenConfigOptions!.onLogin,
+          onLogin: widget.onLogin,
           onForgotPassword: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => PMAPForgotPassword(
                   logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
                   onLoginLink: () => Navigator.pop(context),
-                  onForgotPassword: widget.splashScreenConfigOptions!.onForgotPassword))),
+                  onForgotPassword: widget.onForgotPassword,
+                  forgotPasswordConfigOptions: widget.forgotPasswordScreenConfigOptions,
+              ))),
           onRegister: () => Navigator.push(context, MaterialPageRoute(
             builder: (context) => PMAPRegister(
-              onRegister: widget.splashScreenConfigOptions!.onRegister,
+              onRegister: widget.onRegister,
               onLoginLink: () => Navigator.pop(context),
-              logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
+              registerScreenConfigOptions: widget.registerScreenConfigOptions,
             )
           ))
       )));
@@ -101,8 +124,8 @@ class _PMAPSplashState extends State<PMAPSplash> {
                     : Container(),
                 SvgPicture.network(
                   PMAPConstants.logoUrl!,
-                  width: widget.splashScreenConfigOptions!.logoWidth,
-                  height: widget.splashScreenConfigOptions!.logoHeight,
+                  width: widget.logoWidth,
+                  height: widget.logoHeight,
                 ),
                 SizedBox(height: SizeConfig.h20,),
                 CircularProgressIndicator(color: PMAPConstants.baseThemeColor,)

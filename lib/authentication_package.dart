@@ -21,6 +21,7 @@ part 'Screens/PMAPForgotPassword.dart';
 part 'Screens/PMAPRegisterScreen.dart';
 part 'Modals/PMAPLoginConfigOptions.dart';
 part 'Modals/PMAPSplashConfigOptions.dart';
-// part 'Modals/PMAPRegisterConfigOptions.dart';
+part 'Modals/PMAPRegisterConfigOptions.dart';
+part 'Modals/PMAPForgotPasswordConfigOptions.dart';
 
 

@@ -94,8 +94,13 @@ class HelperMethods{
         );
         break;
       case 422:
+        print("422 error");
+        // print(response.body);
+        dynamic errorResponse = jsonDecode(response.body);
+        String error = errorResponse["errors"]["email"].first;
+        print(error);
         Fluttertoast.showToast(
-          msg: "No account found for this email",
+          msg: error,
           backgroundColor: Colors.redAccent,
           textColor: Colors.white,
           gravity: ToastGravity.BOTTOM,

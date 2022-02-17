@@ -1,29 +1,27 @@
 part of authentication_package;
 
-class PMAPLoginConfigOptions{
-  final double? logoHeight;
-  final double? logoWidth;
+class PMAPForgotPasswordConfigOptions{
+  //Optional fields
   final Color? backgroundColor;
+
   //App title customzation fields
   final String? title;
+  final String? subTitle;
   final double? titleFontSize;
   final Color? titleFontColor;
   final FontWeight? titleFontWeight;
   final FontStyle? titleFontStyle;
   final bool titleUnderline;
 
+  PMAPForgotPasswordConfigOptions({
 
-  PMAPLoginConfigOptions({
-    this.logoHeight = 120,
-    this.logoWidth = 120,
     this.backgroundColor = Colors.white,
-    this.title = "Sign In To Your Account",
+    this.title = "Reset Password",
+    this.subTitle = "Enter your registered Email address and we will send you Password Reset link.",
     this.titleFontSize = 20,
     this.titleFontColor = Colors.black,
-    this.titleFontWeight = FontWeight.bold,
+    this.titleFontWeight = FontWeight.normal,
     this.titleFontStyle = FontStyle.normal,
     this.titleUnderline = false,
   });
-
-
 }
