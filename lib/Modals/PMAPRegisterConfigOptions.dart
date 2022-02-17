@@ -5,6 +5,8 @@ class PMAPRegisterConfigOptions{
   final Color? backgroundColor;
 
   //App title customzation fields
+  final String? apiName;
+
   final String? title;
   final double? titleFontSize;
   final Color? titleFontColor;
@@ -13,6 +15,7 @@ class PMAPRegisterConfigOptions{
   final bool titleUnderline;
 
   PMAPRegisterConfigOptions({
+    required this.apiName,
 
     this.backgroundColor = Colors.white,
     this.title = "Create Your Account",

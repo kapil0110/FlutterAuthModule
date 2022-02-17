@@ -69,7 +69,7 @@ class _PMAPRegisterState extends State<PMAPRegister> {
         data["password_confirmation"] = passwordController.text;
         data["intrest"] = "Both";
 
-        String? result = await ApiProvider().register(data);
+        String? result = await ApiProvider().register(widget.registerScreenConfigOptions!.apiName, data);
         if (result != "None") {
           if (pr.isShowing()) pr.hide();
           return widget.onRegister(result);

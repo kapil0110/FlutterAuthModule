@@ -53,7 +53,7 @@ class _PMAPLoginState extends State<PMAPLogin> {
       );
       pr.show();
 
-      String? result = await ApiProvider().login(userName, password);
+      String? result = await ApiProvider().login(widget.loginScreenConfigOptions!.apiName, userName, password);
       if (result != "None") {
         // dynamic json = jsonDecode(result);
         if (pr.isShowing()) pr.hide();

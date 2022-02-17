@@ -167,10 +167,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   }
                 },
-/*---------------------- Splash Screen Configuration Options -----------------------*/
+/*--------------------------- Optional parameters ----------------------------*/
+
+
+/*-------------------- Splash Screen Configuration Options -------------------*/
 
                 splashScreenConfigOptions: PMAPSplashConfigOptions(
-/*--------------------------- Optional parameters ----------------------------*/
+                  apiName: "api_validate_token",
 
                   //App title default none
                   title: "My Auth Plugin",
@@ -195,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
 /*---------------------- Login Screen Configuration Options -----------------------*/
 
                 loginScreenConfigOptions: PMAPLoginConfigOptions(
-/*--------------------------- Optional parameters ----------------------------*/
+                  apiName: "api_login",
                   //Provides width to logo displayed in Splash Screen
                   logoWidth: 150,
 
@@ -224,6 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
 /*---------------------- Register Screen Configuration Options -----------------------*/
                 //
                 registerScreenConfigOptions: PMAPRegisterConfigOptions(
+                  apiName: "api_register",
 /*--------------------------- Optional parameters ----------------------------*/
 
                   //App title default none
@@ -248,6 +252,7 @@ class _MyHomePageState extends State<MyHomePage> {
 /*---------------------- Forgot Password Screen Configuration Options -----------------------*/
 
                 forgotPasswordScreenConfigOptions: PMAPForgotPasswordConfigOptions(
+                  apiName: "api_password_reset",
 /*--------------------------- Optional parameters ----------------------------*/
 
                   //App title default none

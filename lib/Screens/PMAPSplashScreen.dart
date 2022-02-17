@@ -65,16 +65,17 @@ class _PMAPSplashState extends State<PMAPSplash> {
   }
 
   Future<String?> authenticateToken()async{
-    String result = await ApiProvider().authenticate(widget.apiToken);
+    String result = await ApiProvider().authenticate(widget.splashScreenConfigOptions!.apiName, widget.apiToken);
     if(result != "None"){
       return widget.onAuthenticated(result);
     }else{
       Navigator.push(context, MaterialPageRoute(builder: (context) => PMAPLogin(
-          loginScreenConfigOptions: PMAPLoginConfigOptions(),
+          loginScreenConfigOptions: PMAPLoginConfigOptions(
+            apiName: widget.loginScreenConfigOptions!.apiName,
+          ),
           onLogin: widget.onLogin,
           onForgotPassword: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => PMAPForgotPassword(
-                  logoUrl: "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg",
                   onLoginLink: () => Navigator.pop(context),
                   onForgotPassword: widget.onForgotPassword,
                   forgotPasswordConfigOptions: widget.forgotPasswordScreenConfigOptions,

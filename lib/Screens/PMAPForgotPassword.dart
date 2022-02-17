@@ -2,13 +2,11 @@ part of authentication_package;
 
 
 class PMAPForgotPassword extends StatefulWidget {
-  final String? logoUrl;
   final onLoginLink;
   final Function(String?) onForgotPassword;
   final PMAPForgotPasswordConfigOptions? forgotPasswordConfigOptions;
 
   const PMAPForgotPassword({Key? key,
-    required this.logoUrl,
     required this.onLoginLink,
     required this.onForgotPassword,
     required this.forgotPasswordConfigOptions,
@@ -46,7 +44,7 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
         Map<String, dynamic> data = {};
         data["email"] = emailController.text;
 
-        String? result = await ApiProvider().resetPassword(data);
+        String? result = await ApiProvider().resetPassword(widget.forgotPasswordConfigOptions!.apiName, data);
         if (result != "None") {
           if (pr.isShowing()) pr.hide();
           Navigator.pop(context);
@@ -81,7 +79,7 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(height: (MediaQuery.of(context).size.height / 100) * 15,),
-                      SvgPicture.network(widget.logoUrl!, height: 55, width: 55,),
+                      SvgPicture.network(PMAPConstants.logoUrl!, height: 55, width: 55,),
                       SizedBox(height: SizeConfig.v2),
                       Text(widget.forgotPasswordConfigOptions!.title!,
                         style: TextStyle(

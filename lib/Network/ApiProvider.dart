@@ -10,8 +10,7 @@ import 'package:http/http.dart' as http;
 
 class ApiProvider{
 
-  Future<String> login(String? userName, String? password) async {
-    String apiName = "api_login";
+  Future<String> login(String? apiName, String? userName, String? password) async {
     http.Response? response;
     String result= "None";
     Map<String, String> headers = {
@@ -22,7 +21,8 @@ class ApiProvider{
     data["email"] = userName;
     data["password"] = password;
     try {
-      response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"), headers: headers, body: jsonEncode(data)).timeout(const Duration(seconds: 7));
+      response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"),
+          headers: headers, body: jsonEncode(data)).timeout(const Duration(seconds: 15));
       print(response.statusCode);
       String status = await HelperMethods.showErrorMessage(response);
       if(status == "Success") result = response.body;
@@ -55,8 +55,7 @@ class ApiProvider{
     return result;
   }
 
-  Future<String> authenticate(String? apiToken) async {
-    String apiName = "api_validate_token";
+  Future<String> authenticate(String? apiName, String? apiToken) async {
     http.Response? response;
     String result= "None";
 
@@ -66,7 +65,8 @@ class ApiProvider{
       'Accept' : 'application/json'
     };
     try {
-      response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"), headers: header).timeout(const Duration(seconds: 7));
+      response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"),
+          headers: header).timeout(const Duration(seconds: 15));
       print(response.statusCode);
       String status = await HelperMethods.showErrorMessage(response);
       if(status == "Success") result = response.body;
@@ -95,8 +95,7 @@ class ApiProvider{
     return result;
   }
 
-  Future<String> register(Map<String, dynamic> data) async {
-    String apiName = "api_register";
+  Future<String> register(String? apiName, Map<String, dynamic> data) async {
     http.Response? response;
     String result= "None";
 
@@ -107,7 +106,8 @@ class ApiProvider{
     };
 
     try {
-      response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"), headers: header, body: jsonEncode(data)).timeout(const Duration(seconds: 7));
+      response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"),
+          headers: header, body: jsonEncode(data)).timeout(const Duration(seconds: 15));
       print(response.statusCode);
       print(response.body);
       String status = await HelperMethods.showErrorMessage(response);
@@ -135,8 +135,7 @@ class ApiProvider{
     return result;
   }
 
-  Future<String> resetPassword(Map<String, dynamic> data) async {
-    String apiName = "api_password_rest";
+  Future<String> resetPassword(String? apiName, Map<String, dynamic> data) async {
     http.Response? response;
     String result= "None";
 
@@ -147,7 +146,8 @@ class ApiProvider{
     };
 
     try {
-      response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"), headers: header, body: jsonEncode(data)).timeout(const Duration(seconds: 7));
+      response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"),
+          headers: header, body: jsonEncode(data)).timeout(const Duration(seconds: 15));
       print(response.statusCode);
       print(response.body);
       String status = await HelperMethods.showErrorMessage(response);

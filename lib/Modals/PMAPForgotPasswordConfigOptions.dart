@@ -1,6 +1,9 @@
 part of authentication_package;
 
 class PMAPForgotPasswordConfigOptions{
+
+  final String? apiName;
+
   //Optional fields
   final Color? backgroundColor;
 
@@ -14,6 +17,7 @@ class PMAPForgotPasswordConfigOptions{
   final bool titleUnderline;
 
   PMAPForgotPasswordConfigOptions({
+    required this. apiName,
 
     this.backgroundColor = Colors.white,
     this.title = "Reset Password",

@@ -9,6 +9,7 @@ class PMAPSplashConfigOptions{
   final Color? backgroundColor;
 
   //App title customzation fields
+  final String? apiName;
   final String? title;
   final double? titleFontSize;
   final Color? titleFontColor;
@@ -17,6 +18,8 @@ class PMAPSplashConfigOptions{
   final bool titleUnderline;
 
   PMAPSplashConfigOptions({
+    required this.apiName,
+
     this.backgroundColor = Colors.white,
     this.title = "",
     this.titleFontSize = 20,

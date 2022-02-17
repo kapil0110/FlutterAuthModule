@@ -1,6 +1,8 @@
 part of authentication_package;
 
 class PMAPLoginConfigOptions{
+  final String? apiName;
+
   final double? logoHeight;
   final double? logoWidth;
   final Color? backgroundColor;
@@ -14,6 +16,8 @@ class PMAPLoginConfigOptions{
 
 
   PMAPLoginConfigOptions({
+    required this.apiName,
+
     this.logoHeight = 120,
     this.logoWidth = 120,
     this.backgroundColor = Colors.white,
