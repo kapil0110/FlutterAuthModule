@@ -20,6 +20,7 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
   TextEditingController emailController = TextEditingController();
   String? email = "";
   late ProgressDialog pr;
+  bool buttonClicked = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -36,6 +37,9 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
   Future<String?> resetPassword()async{
     FocusScope.of(context).unfocus();
     if(_formKey.currentState!.validate()) {
+      setState(() {
+        buttonClicked = true;
+      });
         pr.style(
           child: const CircularProgressIndicator(),
           // message: "Logging In",
@@ -51,6 +55,9 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
           return widget.onForgotPassword(result);
         } else {
           if (pr.isShowing()) pr.hide();
+          setState(() {
+            buttonClicked = false;
+          });
           return widget.onForgotPassword("");
         }
       }
@@ -124,7 +131,7 @@ class _PMAPForgotPasswordState extends State<PMAPForgotPassword> {
                       MaterialButton(
                         onPressed: resetPassword,
                         child: const Text("Send Reset Password Link", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
-                        color: PMAPConstants.baseThemeColor,
+                        color: buttonClicked ? Colors.grey[400]: PMAPConstants.baseThemeColor,
                         height: 55,
                         elevation: 2,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

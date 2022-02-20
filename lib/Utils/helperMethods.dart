@@ -58,13 +58,15 @@ class HelperMethods{
         status = "Success";
         break;
       case 401:
-        Fluttertoast.showToast(
-          msg: "${temp["message"]}",
-          backgroundColor: Colors.redAccent,
-          textColor: Colors.white,
-          gravity: ToastGravity.BOTTOM,
-          toastLength: Toast.LENGTH_LONG,
-        );
+        if(temp["message"] != "Unauthenticated.") {
+          Fluttertoast.showToast(
+            msg: "${temp["message"]}",
+            backgroundColor: Colors.redAccent,
+            textColor: Colors.white,
+            gravity: ToastGravity.BOTTOM,
+            toastLength: Toast.LENGTH_LONG,
+          );
+        }
         break;
       case 403:
         Fluttertoast.showToast(
@@ -96,16 +98,49 @@ class HelperMethods{
       case 422:
         print("422 error");
         // print(response.body);
-        dynamic errorResponse = jsonDecode(response.body);
-        String error = errorResponse["errors"]["email"].first;
-        print(error);
-        Fluttertoast.showToast(
-          msg: error,
-          backgroundColor: Colors.redAccent,
-          textColor: Colors.white,
-          gravity: ToastGravity.BOTTOM,
-          toastLength: Toast.LENGTH_LONG,
-        );
+        Map<String, dynamic> errorResponse = jsonDecode(response.body)["errors"];
+
+        await showDialog(context: myContext, builder: (_){
+          return AlertDialog(
+            elevation: 1,
+            title: const Text("Error", style: TextStyle(fontSize: 18,),),
+            contentPadding: const EdgeInsets.all(8),
+            actions: [
+              TextButton(onPressed: (){Navigator.pop(myContext);}, child: const Text("OK")),
+            ],
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(errorResponse.length, (index){
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(errorResponse.keys.elementAt(index).toString(),
+                      style: const TextStyle(fontWeight: FontWeight.bold),),
+                    const SizedBox(height: 5,),
+                    Column(
+                      // mainAxisSize: MainAxisSize.min,
+                      children: List.generate(errorResponse.values.elementAt(index).length, (i){
+                        return Text("${errorResponse.values.elementAt(index).elementAt(i)}");
+                      }),
+                    )
+                  ],
+                );
+              }),
+            ),
+          );
+        });
+        // String error = errorResponse["errors"]["email"].first;
+        // print(error);
+        // Fluttertoast.showToast(
+        //   msg: error,
+        //   backgroundColor: Colors.redAccent,
+        //   textColor: Colors.white,
+        //   gravity: ToastGravity.BOTTOM,
+        //   toastLength: Toast.LENGTH_LONG,
+        // );
         // try{
         //   MySharedPreferences().addErrorData(response.body);
         // }catch(error){

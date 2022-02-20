@@ -1,14 +1,16 @@
 part of authentication_package;
 
 class PMAPRegister extends StatefulWidget {
-  final Function(String?) onRegister;
+  final onRegister;
   final onLoginLink;
   final PMAPRegisterConfigOptions? registerScreenConfigOptions;
+  // final Map<String, String> socialData;
 
   const PMAPRegister({Key? key,
     required this.onLoginLink,
     required this.onRegister,
-    required this.registerScreenConfigOptions
+    required this.registerScreenConfigOptions,
+    // required this.socialData,
   }) : super(key: key);
 
   @override
@@ -27,12 +29,18 @@ class _PMAPRegisterState extends State<PMAPRegister> {
   TextEditingController passwordController = TextEditingController();
   bool termsConditions = false;
   bool isVisible = false;
+  bool buttonClicked = false;
   late ProgressDialog pr;
+  final _focusNode = FocusNode();
 
 
   @override
   void initState() {
     super.initState();
+    // print(widget.socialData);
+    _focusNode.addListener(() {
+      print(_focusNode.hasFocus);
+    });
   }
 
   @override
@@ -51,6 +59,9 @@ class _PMAPRegisterState extends State<PMAPRegister> {
       FocusScope.of(context).unfocus();
     if(_formKey.currentState!.validate()) {
       if (termsConditions) {
+        setState(() {
+          buttonClicked = true;
+        });
         pr.style(
           child: const CircularProgressIndicator(),
           // message: "Logging In",
@@ -70,11 +81,19 @@ class _PMAPRegisterState extends State<PMAPRegister> {
         data["intrest"] = "Both";
 
         String? result = await ApiProvider().register(widget.registerScreenConfigOptions!.apiName, data);
+        // await Future.delayed(const Duration(seconds: 2));
+
         if (result != "None") {
+          print(result);
+
           if (pr.isShowing()) pr.hide();
           return widget.onRegister(result);
         } else {
-          if (pr.isShowing()) pr.hide();
+          print("sdfds");
+          pr.hide();
+          setState(() {
+            buttonClicked = false;
+          });
           return widget.onRegister("");
         }
       } else {
@@ -133,21 +152,26 @@ class _PMAPRegisterState extends State<PMAPRegister> {
                           Row(
                             children: [
                               Expanded(
-                                child: TextFormField(
-                                  controller: firstNameController,
-                                  keyboardType: TextInputType.text,
-                                  decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(10)
-                                      ),
-                                      hintText: "First Name",
-                                      labelText: "First Name",
-                                      labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
-                                      focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
-                                      )
+                                child: Focus(
+                                  onFocusChange: (hasFocus){
+                                    print(hasFocus);
+                                  },
+                                  child: TextFormField(
+                                    controller: firstNameController,
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10)
+                                        ),
+                                        hintText: "First Name",
+                                        labelText: "First Name",
+                                        labelStyle: TextStyle(color: PMAPConstants.baseThemeColor),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(color: PMAPConstants.baseThemeColor!)
+                                        )
+                                    ),
+                                    validator: (value) => MyValidator.validateNameField(value),
                                   ),
-                                  validator: (value) => MyValidator.validateNameField(value),
                                 ),
                               ),
                               const SizedBox(width: 15,),
@@ -311,7 +335,7 @@ class _PMAPRegisterState extends State<PMAPRegister> {
                           MaterialButton(
                             onPressed: registerUser,
                             child: const Text("CREATE ACCOUNT", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
-                            color: PMAPConstants.baseThemeColor,
+                            color: buttonClicked ? Colors.grey[400]: PMAPConstants.baseThemeColor,
                             height: 55,
                             elevation: 2,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

@@ -6,6 +6,7 @@ import 'package:authentication_package/Utils/PMAPConstants.dart';
 import 'package:authentication_package/authentication_package.dart';
 import 'package:example/HomeScreen.dart';
 import 'package:example/MySharedPreferences.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -20,10 +21,12 @@ class MyHttpOverrides extends HttpOverrides{
   }
 }
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   //Sets setting globally for all HttpClients
   HttpOverrides.global = MyHttpOverrides();
+
+  await Firebase.initializeApp();
 
   runApp(const MyApp());
 }
@@ -86,6 +89,10 @@ class _MyHomePageState extends State<MyHomePage> {
         logo: "https://raw.githubusercontent.com/nimish-pugmarker/"
             "File-Hosting-For-Demo/9269c45b6323c6738a4bd12df4fcf3667e6ff528/"
             "Dummy-logo%20(1).svg",
+      socialLogins: [
+        SocialMediaTypes.google,
+        SocialMediaTypes.facebook,
+      ],
     );
 
     //Future call returns true after apiToken is initialized
@@ -147,7 +154,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   if(value!.isNotEmpty){
                     dynamic result = jsonDecode(value);
                     MySharedPreferences().addApiToken(result["access_token"]);
-                    Navigator.pushReplacementNamed(context, "/Home");
+                    Navigator.pushNamedAndRemoveUntil(context, "/Home", (route) => false);
+                    // Navigator.pushReplacementNamed(context, "/Home");
                   }
                 },
                 //Callback returning result from Reset Password api
@@ -167,8 +175,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   }
                 },
-/*--------------------------- Optional parameters ----------------------------*/
+                onGoogleLogin: (value){
+                  print("main: $value");
+                  Navigator.pushNamedAndRemoveUntil(context, "/Home", (route) => false);
 
+                },
 
 /*-------------------- Splash Screen Configuration Options -------------------*/
 

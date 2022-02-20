@@ -12,6 +12,8 @@ class PMAPSplash extends StatefulWidget {
   final Function(String?) onLogin;
   final Function(String?) onForgotPassword;
   final Function(String?) onRegister;
+  final Function(String?)? onGoogleLogin;
+
   //For Splash Screen
   final PMAPSplashConfigOptions? splashScreenConfigOptions;
 
@@ -27,11 +29,12 @@ class PMAPSplash extends StatefulWidget {
 
   const PMAPSplash(
       {Key? key,
-        this.loginScreenConfigOptions,
-        this.splashScreenConfigOptions,
-        this.registerScreenConfigOptions,
-        this.forgotPasswordScreenConfigOptions,
+        required this.loginScreenConfigOptions,
+        required this.splashScreenConfigOptions,
+        required this.registerScreenConfigOptions,
+        required this.forgotPasswordScreenConfigOptions,
         required this.onAuthenticated,
+        this.onGoogleLogin,
         required this.onLogin,
         required this.onRegister,
         required this.onForgotPassword,
@@ -51,7 +54,7 @@ class _PMAPSplashState extends State<PMAPSplash> {
   @override
   void initState() {
     super.initState();
-
+    HelperMethods().init(context);
 /*-------------Add 2 seconds delay to call Authentication Api -------------*/
     Future.delayed(const Duration(seconds: 2), (){
       //Future method for calling Authentication Api
@@ -73,20 +76,23 @@ class _PMAPSplashState extends State<PMAPSplash> {
           loginScreenConfigOptions: PMAPLoginConfigOptions(
             apiName: widget.loginScreenConfigOptions!.apiName,
           ),
+          registerScreenConfigOptions: widget.registerScreenConfigOptions,
           onLogin: widget.onLogin,
+          onGoogleLogin: widget.onGoogleLogin,
           onForgotPassword: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => PMAPForgotPassword(
                   onLoginLink: () => Navigator.pop(context),
                   onForgotPassword: widget.onForgotPassword,
                   forgotPasswordConfigOptions: widget.forgotPasswordScreenConfigOptions,
               ))),
-          onRegister: () => Navigator.push(context, MaterialPageRoute(
-            builder: (context) => PMAPRegister(
-              onRegister: widget.onRegister,
-              onLoginLink: () => Navigator.pop(context),
-              registerScreenConfigOptions: widget.registerScreenConfigOptions,
-            )
-          ))
+          onRegister: (value) => Navigator.push(context, MaterialPageRoute(
+          builder: (context) => PMAPRegister(
+            onRegister: widget.onRegister,
+            onLoginLink: () => Navigator.pop(context),
+            registerScreenConfigOptions: widget.registerScreenConfigOptions,
+            // socialData: {},
+          )
+      )),
       )));
     }
   }

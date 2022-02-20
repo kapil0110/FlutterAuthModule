@@ -2,15 +2,19 @@ part of authentication_package;
 
 class PMAPLogin extends StatefulWidget {
   final onForgotPassword;
-  final onRegister;
+  final Function(String?) onRegister;
+  final Function(String?)? onGoogleLogin;
   final Function(String?) onLogin;
   final PMAPLoginConfigOptions? loginScreenConfigOptions;
+  final PMAPRegisterConfigOptions? registerScreenConfigOptions;
 
   PMAPLogin({Key? key,
     required this.onLogin,
     required this.onForgotPassword,
     required this.onRegister,
+    this.onGoogleLogin,
     required this.loginScreenConfigOptions,
+    required this.registerScreenConfigOptions,
   }) : super(key: key);
 
 
@@ -30,8 +34,19 @@ class _PMAPLoginState extends State<PMAPLogin> {
   String? password = "";
   late bool result;
   late ProgressDialog pr;
+  bool buttonClicked = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+      scopes: [
+        'email',
+      ]
+  );
 
-
+  Map<String, String> socialData = {
+    "displayName" : "",
+    "email" : "",
+    "mobile" : "",
+  };
   @override
   void initState() {
     super.initState();
@@ -47,13 +62,17 @@ class _PMAPLoginState extends State<PMAPLogin> {
   Future<String?> getData()async{
     FocusScope.of(context).unfocus();
     if(_formKey.currentState!.validate()) {
+      setState(() {
+        buttonClicked = true;
+      });
       pr.style(
         child: const CircularProgressIndicator(),
         // message: "Logging In",
       );
       pr.show();
 
-      String? result = await ApiProvider().login(widget.loginScreenConfigOptions!.apiName, userName, password);
+      String? result = await ApiProvider().login(
+          widget.loginScreenConfigOptions!.apiName, userName, password);
       if (result != "None") {
         // dynamic json = jsonDecode(result);
         if (pr.isShowing()) pr.hide();
@@ -61,10 +80,47 @@ class _PMAPLoginState extends State<PMAPLogin> {
         return widget.onLogin(result);
       } else {
         if (pr.isShowing()) pr.hide();
-
+        setState(() {
+          buttonClicked = false;
+        });
         return widget.onLogin("");
       }
     }
+
+  }
+
+
+  Widget getSocialButton(button){
+    if(button == SocialMediaTypes.google){
+      return GoogleLoginButton(
+        apiName: widget.registerScreenConfigOptions!.apiName!,
+        onGoogleLogin: widget.onGoogleLogin,
+      );
+    }
+    if(button == SocialMediaTypes.facebook){
+      return GestureDetector(
+        onTap: ()async{
+          if(await _googleSignIn.isSignedIn()){
+            _googleSignIn.signOut();
+            _auth.signOut();
+          }
+        },
+        child: SizedBox(
+          height: SizeConfig.h10,
+          width: SizeConfig.h10,
+          child: Image.asset("assets/facebook.png", package: "authentication_package", fit: BoxFit.contain,),
+        ),
+      );
+    }
+    if(button == SocialMediaTypes.twitter){
+      return SizedBox(
+        height: SizeConfig.h10,
+        width: SizeConfig.h10,
+        child: Image.asset("assets/twitter.png", package: "authentication_package", fit: BoxFit.contain,),
+      );
+    }
+
+    return Container();
 
   }
 
@@ -149,7 +205,7 @@ class _PMAPLoginState extends State<PMAPLogin> {
                     MaterialButton(
                       onPressed: getData,
                       child: const Text("Sign In", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
-                      color: PMAPConstants.baseThemeColor,
+                      color: buttonClicked ? Colors.grey[400]: PMAPConstants.baseThemeColor,
                       height: 55,
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -163,6 +219,14 @@ class _PMAPLoginState extends State<PMAPLogin> {
                           widget.onForgotPassword();
                         },
                         child: Text("Forgot Password?", style: TextStyle(fontSize: 18, color: PMAPConstants.baseThemeColor, decoration: TextDecoration.underline),)),
+                    SizedBox(height: (MediaQuery.of(context).size.height / 100) * 4,),
+                    PMAPConstants.socialMedias!.isNotEmpty
+                    ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(PMAPConstants.socialMedias!.length,
+                              (index) => getSocialButton(PMAPConstants.socialMedias!.elementAt(index))),
+                    ) : Container(),
                     Expanded(child: Container(),),
                     Container(height: 2, width: MediaQuery.of(context).size.width, color: Colors.grey),
                     Padding(
@@ -177,7 +241,8 @@ class _PMAPLoginState extends State<PMAPLogin> {
                                   recognizer: TapGestureRecognizer()..onTap = (){
                                     userNameController.clear();
                                     passwordController.clear();
-                                    widget.onRegister();
+                                    print("dskhfbds");
+                                    widget.onRegister;
                                   },
                                   style: TextStyle(color: PMAPConstants.baseThemeColor, decoration: TextDecoration.underline)
                               )

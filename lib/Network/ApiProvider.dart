@@ -108,8 +108,7 @@ class ApiProvider{
     try {
       response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"),
           headers: header, body: jsonEncode(data)).timeout(const Duration(seconds: 15));
-      print(response.statusCode);
-      print(response.body);
+
       String status = await HelperMethods.showErrorMessage(response);
       if(status == "Success") result = response.body;
 
@@ -144,6 +143,7 @@ class ApiProvider{
       'Content-Type' : 'application/json',
       'Accept' : 'application/json'
     };
+    print("${PMAPConstants.apiBaseUrl}$apiName");
 
     try {
       response = await http.post(Uri.parse("${PMAPConstants.apiBaseUrl}$apiName"),
