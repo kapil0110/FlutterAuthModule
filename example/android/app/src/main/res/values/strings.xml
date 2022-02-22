@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Auth Plugin Demo</string>
+    <string name="facebook_app_id">320632253377357</string>
+    <string name="fb_login_protocol_scheme">fb320632253377357</string>
+    <string name="facebook_client_token">08010b36a4a331136d2248c5b2709644</string>
+</resources>

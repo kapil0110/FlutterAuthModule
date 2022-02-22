@@ -76,7 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-
     //Initialize Configuration properties that will be used inside plugin
     //to make api call, set color theme
     PMAPConstants().initialize(
@@ -92,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
       socialLogins: [
         SocialMediaTypes.google,
         SocialMediaTypes.facebook,
+        SocialMediaTypes.twitter,
       ],
     );
 
@@ -176,8 +176,33 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 },
                 onGoogleLogin: (value){
-                  print("main: $value");
-                  Navigator.pushNamedAndRemoveUntil(context, "/Home", (route) => false);
+                  log("main: $value");
+
+                  if(value!.isNotEmpty){
+                    dynamic result = jsonDecode(value);
+                    MySharedPreferences().addApiToken(result["access_token"]);
+                    Navigator.pushNamedAndRemoveUntil(context, "/Home", (route) => false);
+                  }
+
+                },
+                onFacebookLogin: (value){
+                  log("main: $value");
+
+                  if(value!.isNotEmpty){
+                    dynamic result = jsonDecode(value);
+                    MySharedPreferences().addApiToken(result["access_token"]);
+                    Navigator.pushNamedAndRemoveUntil(context, "/Home", (route) => false);
+                  }
+
+                },
+                onTwitterLogin: (value){
+                  log("main: $value");
+
+                  if(value!.isNotEmpty){
+                    dynamic result = jsonDecode(value);
+                    MySharedPreferences().addApiToken(result["access_token"]);
+                    Navigator.pushNamedAndRemoveUntil(context, "/Home", (route) => false);
+                  }
 
                 },
 

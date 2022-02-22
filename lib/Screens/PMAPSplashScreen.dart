@@ -13,6 +13,8 @@ class PMAPSplash extends StatefulWidget {
   final Function(String?) onForgotPassword;
   final Function(String?) onRegister;
   final Function(String?)? onGoogleLogin;
+  final Function(String?)? onFacebookLogin;
+  final Function(String?)? onTwitterLogin;
 
   //For Splash Screen
   final PMAPSplashConfigOptions? splashScreenConfigOptions;
@@ -35,6 +37,8 @@ class PMAPSplash extends StatefulWidget {
         required this.forgotPasswordScreenConfigOptions,
         required this.onAuthenticated,
         this.onGoogleLogin,
+        this.onFacebookLogin,
+        this.onTwitterLogin,
         required this.onLogin,
         required this.onRegister,
         required this.onForgotPassword,
@@ -79,6 +83,8 @@ class _PMAPSplashState extends State<PMAPSplash> {
           registerScreenConfigOptions: widget.registerScreenConfigOptions,
           onLogin: widget.onLogin,
           onGoogleLogin: widget.onGoogleLogin,
+          onFacebookLogin: widget.onFacebookLogin,
+          onTwitterLogin: widget.onTwitterLogin,
           onForgotPassword: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => PMAPForgotPassword(
                   onLoginLink: () => Navigator.pop(context),
